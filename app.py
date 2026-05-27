@@ -14,13 +14,19 @@ INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
 
-# Гарантируем создание папки instance, если её нет (решает проблему на сервере)
+# Гарантируем создание папки instance
 if not os.path.exists(INSTANCE_DIR):
     os.makedirs(INSTANCE_DIR)
 
-# Динамический путь к базе данных
-db_path = os.path.join(INSTANCE_DIR, "sales_system.db")
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+# --- УМНОЕ ПОДКЛЮЧЕНИЕ БАЗЫ ДАННЫХ (Облако / Ноутбук) ---
+db_url = os.environ.get('DATABASE_URL')
+if db_url:
+    # SQLAlchemy требует приставку postgresql://
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    db_path = os.path.join(INSTANCE_DIR, "sales_system.db")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -175,20 +181,13 @@ def staff_page():
         return redirect(url_for("staff_page"))
         
     now = datetime.now()
-    
-    # Считываем месяц и год из ссылки браузера (если там пусто — берем текущие)
     req_month = request.args.get('month', default=now.month, type=int)
     req_year = request.args.get('year', default=now.year, type=int)
-    
     all_sales = Sale.query.all()
-    
-    # Оставляем только те продажи, которые попадают в выбранный месяц
     current_month_sales = [s for s in all_sales if s.date and s.date.year == req_year and s.date.month == req_month]
-    
     months = ["", "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
     current_month_name = f"{months[req_month]} {req_year}"
 
-    # Генерируем массив из 6 последних месяцев для фильтра в админке
     history_months = []
     for i in range(6):
         m = now.month - i
