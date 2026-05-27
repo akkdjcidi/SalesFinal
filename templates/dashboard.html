@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid p-0">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1a202c; font-size: 2.2rem; letter-spacing: -0.5px;">Панель управления аналитикой</h2>
+            <p style="color: #718096; font-weight: 500; margin: 0;">Мониторинг финансовых показателей в реальном времени</p>
+        </div>
+        <div class="text-end">
+            <span class="badge shadow-sm d-inline-flex align-items-center" style="background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; font-size: 0.95rem; padding: 10px 18px; border-radius: 12px;">
+                <span class="spinner-grow spinner-grow-sm text-success me-2" role="status" style="width: 8px; height: 8px;"></span>
+                Обновлено: {{ current_date }} в {{ current_time }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary small fw-bold" style="color: #a0aec0 !important; letter-spacing: 0.5px;">ОБЩАЯ ВЫРУЧКА</span>
+                    <div style="background: #ecfdf5; color: #10b981; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748; font-size: 2rem;">{{ "%.2f"|format(revenue|default(0)) }} <span class="fs-6 text-muted fw-normal">сом</span></h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary small fw-bold" style="color: #a0aec0 !important; letter-spacing: 0.5px;">СРЕДНИЙ ЧЕК</span>
+                    <div style="background: #eef2ff; color: #4f46e5; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="bi bi-receipt-cutoff"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748; font-size: 2rem;">{{ "%.2f"|format(avg_check|default(0)) }} <span class="fs-6 text-muted fw-normal">сом</span></h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary small fw-bold" style="color: #a0aec0 !important; letter-spacing: 0.5px;">ЗАПАСЫ НА СКЛАДЕ</span>
+                    <div style="background: #fffbeb; color: #f59e0b; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748; font-size: 2rem;">{{ total_products }} <span class="fs-6 text-muted fw-normal">шт.</span></h2>
+                    
+                    {% if low_stock_count > 0 %}
+                        <span class="text-danger small fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> На исходе: {{ low_stock_count }} поз.</span>
+                    {% else %}
+                        <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Запасы в норме</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary small fw-bold" style="color: #a0aec0 !important; letter-spacing: 0.5px;">АКТИВНЫЕ КЛИЕНТЫ</span>
+                    <div style="background: #fef2f2; color: #ef4444; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748; font-size: 2rem;">{{ total_clients }} <span class="fs-6 text-muted fw-normal">чел.</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-xl-8">
+            <div class="card-custom p-4 p-md-5 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #1a202c;">Анализ тренда выручки</h4>
+                    </div>
+                </div>
+                <div style="height: 340px; position: relative;">
+                    <canvas id="revenueAdvancedChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card-custom p-4 p-md-5 h-100">
+                <div class="mb-4">
+                    <h4 class="fw-bold mb-1" style="color: #1a202c;">Хиты продаж</h4>
+                </div>
+                
+                <div class="d-flex flex-column gap-4">
+                    {% for product, count in top_products %}
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <span class="me-2 fw-bold d-flex align-items-center justify-content-center rounded-circle" style="width: 24px; height: 24px; font-size: 0.85rem; 
+                                    {% if loop.index == 1 %} background: #fef3c7; color: #d97706; {% elif loop.index == 2 %} background: #f1f5f9; color: #64748b; {% else %} background: #fee2e2; color: #dc2626; {% endif %}">
+                                    {{ loop.index }}
+                                </span>
+                                <span class="fw-bold" style="color: #2d3748; font-weight: 600;">{{ product }}</span>
+                            </div>
+                            <span class="badge" style="background: #f8fafc; color: #718096; border: 1px solid #e2e8f0;">{{ count }} ед.</span>
+                        </div>
+                        <div class="progress" style="height: 8px; background-color: #f1f5f9; border-radius: 20px; overflow: hidden;">
+                            {% set max_count = top_products[0][1] if top_products else 1 %}
+                            {% set width_percent = (count / max_count) * 100 %}
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ width_percent }}%; border-radius: 20px;
+                                 background: {% if loop.index == 1 %} linear-gradient(90deg, #6366f1, #818cf8); {% elif loop.index == 2 %} linear-gradient(90deg, #10b981, #34d399); {% else %} linear-gradient(90deg, #f59e0b, #fbbf24); {% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-5">
+                        <div style="font-size: 3.5rem; color: #e2e8f0;" class="mb-3">📊</div>
+                        <h6 class="fw-bold m-0" style="color: #a0aec0;">Нет данных</h6>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('revenueAdvancedChart').getContext('2d');
+    let lineGradient = ctx.createLinearGradient(0, 0, 0, 350);
+    lineGradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
+    lineGradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels | tojson }},
+            datasets: [{
+                label: 'Выручка (сом)',
+                data: {{ chart_data | tojson }},
+                borderColor: '#4f46e5',
+                backgroundColor: lineGradient,
+                borderWidth: 3,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#4f46e5',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: 'rgba(0, 0, 0, 0.04)' }, ticks: { color: '#718096' } },
+                x: { grid: { display: false }, ticks: { color: '#718096' } }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Pro | CRM</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        /* ИДЕАЛЬНЫЙ КОНТРАСТ ДЛЯ АДМИНКИ */
+        body {
+            background-color: #cbd5e1; /* Глубокий сланцевый фон для отрыва карточек */
+            color: #1a202c; 
+            font-family: 'Manrope', sans-serif;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* БОКОВОЕ МЕНЮ */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #94a3b8; /* Более чёткая граница */
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 50px;
+            padding-left: 10px;
+        }
+
+        .sidebar-brand i {
+            color: #4f46e5;
+            font-size: 1.8rem;
+            margin-right: 12px;
+        }
+
+        .nav-item { margin-bottom: 8px; list-style: none; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-link i { font-size: 1.2rem; margin-right: 14px; transition: all 0.2s; }
+
+        .nav-link:hover, .nav-link.active {
+            background: #f1f5f9;
+            color: #4f46e5;
+        }
+
+        .nav-orders {
+            margin-top: auto;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white !important;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+        }
+        .nav-orders:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+            color: white !important;
+        }
+
+        /* ГЛАВНЫЙ КОНТЕНТ */
+        .main-content {
+            margin-left: 280px;
+            padding: 40px;
+            width: calc(100% - 280px);
+        }
+
+        /* УМНЫЕ КАРТОЧКИ (С усиленной тенью для эффекта левитации) */
+        .card-custom, .card {
+            background: #ffffff !important;
+            border-radius: 24px !important;
+            border: 1px solid rgba(0,0,0,0.02) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important; /* Усиленная тень покоя */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-custom:hover, .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15) !important; /* Глубокая тень при наведении */
+        }
+
+        /* Текстовые поля и селекторы */
+        .form-control, .form-select, input, select {
+            background: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 14px !important;
+            padding: 12px 16px !important;
+            font-weight: 500 !important;
+            color: #1a202c !important;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+            border-color: #4f46e5 !important;
+            background: #ffffff !important;
+        }
+        
+        .form-label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 6px;
+        }
+
+        /* Кнопки действий */
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
+            border: none !important;
+            border-radius: 14px !important;
+            padding: 12px 24px !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2) !important;
+            transition: all 0.2s !important;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35) !important;
+        }
+
+        /* Модальные окна настройки */
+        .modal-content {
+            background: #ffffff !important;
+            border-radius: 28px !important;
+            border: none !important;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15) !important;
+        }
+
+        /* Стилизация таблиц в заказах */
+        .table {
+            color: #1a202c !important;
+        }
+        .table-responsive {
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <i class="bi bi-hexagon-fill"></i> SalesPro
+        </a>
+        
+        <ul class="p-0 m-0 d-flex flex-column h-100">
+            <li class="nav-item">
+                <a class="nav-link" href="/"><i class="bi bi-pie-chart-fill"></i> Аналитика</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/inventory"><i class="bi bi-box-seam-fill"></i> Склад товаров</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/staff"><i class="bi bi-people-fill"></i> Команда</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/clients"><i class="bi bi-person-badge-fill"></i> База клиентов</a>
+            </li>
+            
+            <li class="nav-item mt-auto">
+                <a class="nav-link nav-orders" href="/orders"><i class="bi bi-cart-check-fill"></i> Заказы с сайта</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

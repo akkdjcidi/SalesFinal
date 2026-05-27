@@ -1,0 +1,21 @@
+# Виртуальные окружения (тяжелые папки с библиотеками)
+.venv/
+venv/
+env/
+
+# Настройки редакторов кода (PyCharm и VS Code)
+.idea/
+.vscode/
+
+# Системный мусор и кэш Python
+__pycache__/
+*.pyc
+
+# Локальная база данных (на сервере Render она создастся сама)
+instance/
+*.db
+*.sqlite3
+
+# Системные файлы Mac/Windows
+.DS_Store
+Thumbs.db

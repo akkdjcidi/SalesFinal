@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid p-0">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1a202c; font-size: 2.2rem; letter-spacing: -0.5px;">База клиентов CRM</h2>
+            <p style="color: #718096; font-weight: 500; margin: 0;">Учет контрагентов, история активности и аналитика ценности</p>
+        </div>
+        <div class="text-end d-none d-sm-block">
+            <span class="badge shadow-sm" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.95rem; padding: 10px 18px; border-radius: 12px;">
+                <i class="bi bi-person-vcard-fill me-2"></i> Всего в базе: {{ clients|length }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-xl-7">
+            <div class="card-custom p-4 p-md-5 h-100" style="border-top: 4px solid #4f46e5;">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="shadow-sm" style="background: #ffffff; color: #4f46e5; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 16px; border: 1px solid #e0e7ff;">
+                        <i class="bi bi-person-fill-add"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold m-0" style="color: #1a202c; font-size: 1.25rem;">Регистрация нового клиента</h5>
+                        <small style="color: #718096; font-weight: 600;">Внесение контакта в общую базу данных</small>
+                    </div>
+                </div>
+                
+                <form action="/clients" method="POST">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">ФИО / Название компании</label>
+                            <input type="text" name="name" class="form-control" placeholder="Например: Александр Петров" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Номер телефона</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+996..." required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary fw-bold shadow-sm px-5" style="border-radius: 12px; padding: 12px; font-size: 1.05rem;">
+                        Внести в CRM
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="card-custom p-4 p-md-5 h-100">
+                <h5 class="fw-bold mb-4 d-flex align-items-center" style="color: #1a202c;">
+                    <i class="bi bi-shield-check me-2" style="color: #10b981;"></i> Контроль лояльности
+                </h5>
+                <p style="font-weight: 500; font-size: 1.05rem; color: #4a5568; margin-bottom: 30px;">
+                    Система автоматически трекает заказы как из офлайн-кассы, так и из онлайн-магазина. Если клиент совершает покупку по своему номеру телефона, его общий чек пересчитывается автоматически.
+                </p>
+                <div class="d-flex align-items-center p-3 rounded-3" style="background: #ecfdf5; border: 1px solid #d1fae5;">
+                    <i class="bi bi-lightning-charge-fill me-3 fs-4" style="color: #10b981;"></i>
+                    <span style="color: #047857; font-weight: 600;">Данные обновляются в реальном времени при каждой успешной транзакции.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-end mb-4 mt-2">
+        <h4 class="fw-bold mb-0" style="color: #1a202c;">Картотека контрагентов</h4>
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-4 mb-5">
+        {% for c in clients %}
+        {% set purchases = namespace(count=0) %}
+        {% for sale in sales %}
+            {% if sale.client_id == c.id %}
+                {% set purchases.count = purchases.count + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="col">
+            <div class="card h-100 card-custom overflow-hidden">
+                <div class="card-body p-4 d-flex flex-column bg-white">
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="shadow-sm" style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #818cf8); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; border: 2px solid #fff;">
+                            {{ c.name[0]|upper if c.name else '?' }}
+                        </div>
+                        
+                        <div class="ms-3 overflow-hidden">
+                            <h5 class="fw-bold mb-1 text-truncate" style="color: #1a202c; font-size: 1.15rem;">{{ c.name }}</h5>
+                            <span style="color: #718096; font-weight: 600; font-size: 0.9rem;">
+                                <i class="bi bi-telephone-fill me-1" style="font-size: 0.8rem;"></i> {{ c.phone }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <hr style="border-color: #e2e8f0; opacity: 1; margin-top: 0; margin-bottom: 20px;">
+
+                    <div class="mt-auto">
+                        <div class="row g-2">
+                            <div class="col-5">
+                                <div class="p-3 rounded-3 h-100" style="background: #f8f9fa; border: 1px solid #e2e8f0; text-align: center;">
+                                    <small class="text-uppercase d-block mb-1" style="color: #718096; font-weight: 700; font-size: 0.7rem;">Сделки</small>
+                                    <span class="fw-bold fs-5" style="color: #1a202c;">{{ purchases.count }} шт.</span>
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="p-3 rounded-3 h-100" style="background: #f8f9fa; border: 1px solid #e2e8f0; text-align: center;">
+                                    <small class="text-uppercase d-block mb-1" style="color: #718096; font-weight: 700; font-size: 0.7rem;">Общий оборот</small>
+                                    <span class="fw-bold fs-5" style="color: #10b981;">{{ "%.2f"|format(c.total_spent or 0) }} сом</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

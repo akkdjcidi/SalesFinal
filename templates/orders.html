@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid p-0">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #2b3674; font-size: 2.2rem; letter-spacing: -0.5px;">Логистика и Онлайн-заказы</h2>
+            <p style="color: #a3aed1; font-weight: 500; margin: 0;">Контроль отправлений, статусов оплаты и адресов доставки из интернет-магазина</p>
+        </div>
+        <div class="text-end d-none d-sm-block">
+            <span class="badge shadow-sm" style="background: rgba(67, 24, 255, 0.05); color: #4318ff; border: 1px solid rgba(67, 24, 255, 0.1); font-size: 0.95rem; padding: 10px 18px; border-radius: 12px;">
+                <i class="bi bi-mailbox2 me-2"></i> Активных доставок: {{ sales|length }}
+            </span>
+        </div>
+    </div>
+
+    <div class="card-custom p-4 p-md-5">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" style="background: transparent;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #f4f7fe;">
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">Дата и Время</th>
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">Наименование товара</th>
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">ФИО Клиента</th>
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">Телефон</th>
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">📍 Адрес доставки</th>
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">💳 Способ оплаты</th>
+                        <th style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">Статус</th>
+                        <th class="text-end" style="color: #a3aed1; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 15px;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr style="border-bottom: 1px solid #f4f7fe; transition: background 0.2s;" onmouseover="this.style.background='#fcfcfd'" onmouseout="this.style.background='transparent'">
+                        <td style="color: #707eae; font-weight: 600; font-size: 0.9rem;">
+                            {{ sale.date.strftime('%d.%m.%Y в %H:%M') if sale.date else '—' }}
+                        </td>
+                        <td style="color: #2b3674; font-weight: 700; font-size: 1rem;">
+                            {{ sale.product.title if sale.product else 'Товар удален' }}
+                        </td>
+                        <td style="color: #1b2559; font-weight: 600;">
+                            {{ sale.client.name if sale.client else 'Гость сайта' }}
+                        </td>
+                        <td style="color: #707eae; font-weight: 500; font-size: 0.9rem;">
+                            {{ sale.client.phone if sale.client else '—' }}
+                        </td>
+                        <td style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1b2559; font-weight: 600; font-size: 0.9rem;">
+                            <span class="text-primary me-1">📍</span> {{ sale.address or 'Самовывоз' }}
+                        </td>
+                        <td style="color: #707eae; font-weight: 500; font-size: 0.85rem;">
+                            {% if sale.card_number and sale.card_number|length >= 16 %}
+                                💳 •••• {{ sale.card_number[-4:] }}
+                            {% else %}
+                                💳 {{ sale.card_number or 'Наличные' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge shadow-sm" style="font-size: 0.8rem; padding: 6px 12px; border-radius: 8px;
+                                {% if sale.status == 'Ожидает' %} background: #fff3cd; color: #ff9800;
+                                {% elif sale.status == 'В пути' %} background: #e1f5fe; color: #0288d1;
+                                {% else %} background: #e4ffe8; color: #05cd99; {% endif %}">
+                                {{ sale.status }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            {% if sale.status == 'Ожидает' %}
+                                <a href="/update_order/{{ sale.id }}/В пути" class="btn btn-sm shadow-sm fw-bold px-3 py-2" style="background: #4318ff; color: white; border-radius: 10px; font-size: 0.85rem;">
+                                    <i class="bi bi-truck me-1"></i> Отправить
+                                </a>
+                            {% elif sale.status == 'В пути' %}
+                                <a href="/update_order/{{ sale.id }}/Доставлен" class="btn btn-sm shadow-sm fw-bold px-3 py-2" style="background: #05cd99; color: white; border-radius: 10px; font-size: 0.85rem;">
+                                    <i class="bi bi-check-lg me-1"></i> Доставлен
+                                </a>
+                            {% else %}
+                                <span class="text-muted small fw-bold d-inline-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Выполнен
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5" style="border: none;">
+                            <div style="font-size: 3.5rem; color: #cdd4ea;" class="mb-3">🛒</div>
+                            <h5 class="fw-bold mb-1" style="color: #2b3674;">Очередь онлайн-заказов пуста</h5>
+                            <p style="color: #a3aed1; font-weight: 500; margin: 0;">Когда клиенты купят что-то на сайте, заказы автоматически прилетят сюда.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
