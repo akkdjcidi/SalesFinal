@@ -12,17 +12,22 @@ INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
 
-# Гарантируем создание папки instance, если её нет
+# Гарантируем создание папки instance
 if not os.path.exists(INSTANCE_DIR):
     os.makedirs(INSTANCE_DIR)
 
-# Динамический путь к базе данных
-db_path = os.path.join(INSTANCE_DIR, "sales_system.db")
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+# --- УМНОЕ ПОДКЛЮЧЕНИЕ БАЗЫ ДАННЫХ (Облако / Ноутбук) ---
+db_url = os.environ.get('DATABASE_URL')
+if db_url:
+    # SQLAlchemy требует приставку postgresql://
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    db_path = os.path.join(INSTANCE_DIR, "sales_system.db")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- СИНХРОНИЗИРОВАННЫЕ МОДЕЛИ ---
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -40,6 +45,8 @@ class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(50))
+    base_salary = db.Column(db.Float, default=0.0)
+    commission = db.Column(db.Float, default=0.0)
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,10 +59,8 @@ class Sale(db.Model):
     address = db.Column(db.String(200))
     card_number = db.Column(db.String(20))
 
-# --- СОЗДАНИЕ ТАБЛИЦ (ИСПРАВЛЯЕТ ОШИБКУ 500) ---
 with app.app_context():
     db.create_all()
-# -----------------------------------------------
 
 @app.route("/")
 def shop_index():
@@ -73,27 +78,23 @@ def buy_item(product_id):
     if not p or p.quantity <= 0:
         return "Товара нет в наличии на складе!", 400
 
-    # Получаем новые расширенные данные из формы
     client_name = request.form.get('client_name') or "Покупатель с сайта"
     client_phone = request.form.get('client_phone') or "-"
     address = request.form.get('address') or "Самовывоз"
     card_number = request.form.get('card_number') or "Наличные"
 
-    # Ищем клиента по телефону, если нет — регистрируем в CRM
     c = Client.query.filter_by(phone=client_phone).first()
     if not c:
         c = Client(name=client_name, phone=client_phone, total_spent=0.0)
         db.session.add(c)
         db.session.flush()
 
-    # Ищем робота-продавца
     online_bot = Employee.query.filter_by(name="Онлайн-магазин").first()
     if not online_bot:
         online_bot = Employee(name="Онлайн-магазин", role="Робот")
         db.session.add(online_bot)
         db.session.flush()
 
-    # Списание и фиксация сделки
     p.quantity -= 1
     c.total_spent += p.price
     
