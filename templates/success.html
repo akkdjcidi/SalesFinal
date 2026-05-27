@@ -1,0 +1,13 @@
+{% extends "shop_base.html" %}
+{% block content %}
+<div class="container text-center py-5">
+    <div class="card p-5 shadow-sm border-0 max-width-md mx-auto" style="max-width: 500px;">
+        <div class="display-1 text-success mb-3">🎉</div>
+        <h2 class="fw-bold text-success mb-2">Заказ оформлен!</h2>
+        <p class="text-secondary">Спасибо за покупку, <strong>{{ product.title }}</strong> успешно забронирован за вами.</p>
+        <hr class="my-4 border-light-subtle">
+        <p class="small text-muted mb-4">Наш менеджер свяжется с вами в ближайшее время.</p>
+        <a href="/" class="btn btn-primary px-4 fw-bold shadow-sm">Вернуться к покупкам</a>
+    </div>
+</div>
+{% endblock %}
