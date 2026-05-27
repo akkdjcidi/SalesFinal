@@ -52,6 +52,11 @@ class Sale(db.Model):
     address = db.Column(db.String(200))
     card_number = db.Column(db.String(20))
 
+# --- СОЗДАНИЕ ТАБЛИЦ (ИСПРАВЛЯЕТ ОШИБКУ 500) ---
+with app.app_context():
+    db.create_all()
+# -----------------------------------------------
+
 @app.route("/")
 def shop_index():
     db.session.commit()
